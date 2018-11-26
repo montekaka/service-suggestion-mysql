@@ -41,6 +41,24 @@ module.exports = {
           res.sendStatus(404);  
         }
       })
+    },
+    delete: (req, res) => {
+      const id = req.params.id;
+      Product.findOne({where: {id: id}})
+      .then((product) => {
+        if(product) {
+          return {product: product.destroy(), error: null};
+        } else {
+          return {product: null, error: 'Error'};
+        }
+      })
+      .then((result) => {
+        if(result.product) {
+          res.json({message: `deleted product ${id}`});
+        } else {
+          res.sendStatus(404);  
+        }
+      })      
     }
   }
 };
