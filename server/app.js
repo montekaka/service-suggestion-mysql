@@ -1,7 +1,13 @@
 const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const dotenv = require('dotenv')
 
+dotenv.config();
+let port = 3000;
+if( process.env.NODE_ENV === 'development') {
+  port = 4202;
+}
 // Router
 const router = require('./routes.js');
 const app = express();
@@ -14,7 +20,6 @@ app.use((req, res, next) => {
   next();
 })
 
-let port = 4202;
 app.use(router);
 
 app.get('*', (req, res) => res.status(200).send({
