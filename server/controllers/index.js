@@ -4,10 +4,18 @@ const Product = db.Product;
 module.exports = {
   products: {
     get: (req, res) => {
-      Product.findAll({})
-      .then((product) => {
-        res.json(product);
-      })
+      const id = req.params.id;
+      if (id) {
+        Product.findOne({where: {id: id}})
+        .then((product) => {
+          res.json(product);
+        });
+      } else {
+        Product.findAll({})
+        .then((products) => {
+          res.json(products);
+        });
+      }
     },
     post: (req, res) => {
       const params = {
