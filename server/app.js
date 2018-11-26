@@ -1,8 +1,18 @@
 const express = require('express');
-var db = require('./db');
+const logger = require('morgan');
+const bodyParser = require('body-parser');
+
 // Router
 const router = require('./routes.js');
 const app = express();
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+})
 
 let port = 4202;
 app.use(router);

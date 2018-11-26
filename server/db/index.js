@@ -8,16 +8,16 @@ const Product = orm.define('Product', {
   imageUrl: Sequelize.STRING
 });
 
-const Suggestion = orm.define('Suggestion', {
-  suggestProductId: Sequelize.INTEGER,
-  score: Sequelize.FLOAT  
-});
+// const Suggestion = orm.define('Suggestion', {
+//   suggestProductId: Sequelize.INTEGER,
+//   score: Sequelize.FLOAT  
+// });
 
-Product.hasMany(Suggestion);
-Suggestion.belongsTo(Product);
+// Product.hasMany(Suggestion);
+// Suggestion.belongsTo(Product);
 
 Product.sync();
-Suggestion.sync();
+// Suggestion.sync();
 
 exports.Product = Product;
-exports.Suggestion = Suggestion;
+// exports.Suggestion = Suggestion;
