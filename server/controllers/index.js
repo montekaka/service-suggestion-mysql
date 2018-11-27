@@ -1,5 +1,6 @@
 const db = require('../db');
 const Product = db.Product;
+const Suggestion = db.Suggestion;
 
 module.exports = {
   products: {
