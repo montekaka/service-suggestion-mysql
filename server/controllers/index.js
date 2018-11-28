@@ -1,3 +1,5 @@
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 const db = require('../db');
 const Product = db.Product;
 const Suggestion = db.Suggestion;
@@ -71,16 +73,23 @@ module.exports = {
       Product.findOne({where: {id: id}})
       .then((product) => {
         if(product) {
-          return {product: product.destroy(), error: null};
+          // remove all association with product
+          Suggestion.destroy({
+            where: {
+              [Op.or]: [{productId: id}, {suggestProductId: id}]
+            }
+          })
+          .then(() => {
+            return product.destroy();
+          })          
+          .then(() => {
+            res.json({message: `deleted product ${id}`});
+          })
+          .catch(() => {
+            res.sendStatus(404);
+          })
         } else {
-          return {product: null, error: 'Error'};
-        }
-      })
-      .then((result) => {
-        if(result.product) {
-          res.json({message: `deleted product ${id}`});
-        } else {
-          res.sendStatus(404);  
+          res.sendStatus(404);
         }
       })      
     }
