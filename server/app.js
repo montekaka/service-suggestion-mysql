@@ -1,7 +1,9 @@
 const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
-const dotenv = require('dotenv')
+const dotenv = require('dotenv');
+const path = require('path');
+const fs = require('fs')
 
 dotenv.config();
 let port = 3000;
@@ -20,6 +22,11 @@ app.use((req, res, next) => {
   next();
 })
 
+// create a write stream (in append mode)
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+// setup the logger
+app.use(logger('combined', { stream: accessLogStream }));
+// 
 app.use(router);
 
 app.get('*', (req, res) => res.status(200).send({
