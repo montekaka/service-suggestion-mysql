@@ -2,6 +2,9 @@
 `npm start`
 
 # Docker
+## build the app
+`docker build -t service-suggestion-mysql .`
+
 ## List of images
 `docker images`
 
