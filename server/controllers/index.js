@@ -92,6 +92,15 @@ module.exports = {
           res.sendStatus(404);
         }
       })      
+    },
+    deleteAll: (req, res) => {
+      Suggestion.destroy({ truncate : true, cascade: false })
+      .then(() => {
+        Product.destroy({ truncate : true, cascade: false })
+        .then(() => {
+          res.json({'message':'truncated all'})
+        });
+      })      
     }
   },
   suggestions: {
