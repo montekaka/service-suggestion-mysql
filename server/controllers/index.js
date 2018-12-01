@@ -30,6 +30,9 @@ module.exports = {
       .then((product) => {
         return product;
       })
+      // .then(() => {
+      //   res.sendStatus(201)
+      // })
       .then((product) => {
         // handle suggestion
         Product.findAll({})
@@ -51,7 +54,13 @@ module.exports = {
         .then(() => {
           res.sendStatus(201);
         })
+        .catch(() => {
+          res.sendStatus(404);
+        })
       })
+      .catch(() => {
+        res.sendStatus(404);
+      })      
     },
     put: (req, res) => {
       const id = req.params.id;
