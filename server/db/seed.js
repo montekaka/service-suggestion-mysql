@@ -33,15 +33,24 @@ const calculateSuggestions = (products) => {
 
 const seed = (n) => {
 	let products = seedProducts(n);
-	Product.bulkCreate(products).then(() => {
+	Product.bulkCreate(products).then(() => {		
 		// create suggestions per product
 		Product.findAll({})
 		.then((products) => {
 			return calculateSuggestions(products);
 		})
+		.then((suggestions) => {
+			console.log(suggestions.length)
+			return Suggestion.bulkCreate(suggestions).then(() => {
+				console.log('done suggestions')
+			})
+			.catch((err) => {
+				console.log('error suggestions')
+			})
+		})
 		.then(() => {
 			console.log('done');	
-			process.exit();
+			process.exit();			
 		})			
 	})
 	.catch((err) => {
@@ -49,4 +58,4 @@ const seed = (n) => {
 	})
 }
 
-seed(10)
+seed(100)
