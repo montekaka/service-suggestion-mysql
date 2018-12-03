@@ -22,8 +22,9 @@ module.exports = {
       }
     },
     post: (req, res) => {
+      const name = req.body['name']
       const params = {
-       name: req.body['name'], 
+       name: name, 
        imageUrl: req.body['imageUrl']
       };
       Product.create(params)
@@ -35,21 +36,21 @@ module.exports = {
       // })
       .then((product) => {
         // handle suggestion
-        Product.findAll({})
-        .then((products) => {
-          for(var i = 0; i < products.length; i++) {
-            if( products[i].id !== product.id ) {
-              let score = stringSimilarity.compareTwoStrings(products[i]['name'], product['name']);
-              Suggestion.bulkCreate([ 
-                { ProductId: product.id, suggestProductId: products[i].id, score: score },
-                { ProductId: products[i].id, suggestProductId: product.id, score: score }
-              ])
-              .then(() => {
-                return true;
-              })
+        Product.findAll({
+          where: {
+            id: {
+              [Op.ne]: product.id
             }
           }
-          return true;        
+        })
+        .then((products) => {
+          var bulk = [];
+          products.forEach((x) => {
+            let score = stringSimilarity.compareTwoStrings(x['name'], name);
+            bulk.push({ ProductId: product.id, suggestProductId: x.id, score: score });
+            bulk.push({ ProductId: x.id, suggestProductId: product.id, score: score });          
+          });          
+          return Suggestion.bulkCreate(bulk);
         })
         .then(() => {
           res.sendStatus(201);
