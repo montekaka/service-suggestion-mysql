@@ -8,44 +8,20 @@ const fake = require('./../../libs/fake.js');
 
 const dataGenerator = fake.generator;
 
-const promiseProduct = function(n) {
-	return new Promise (
-		(resolve, reject) => {
-			var products = [];
-			for(var i = 0; i < n; i++) {
-				let data = dataGenerator();
-				products.push(data);
-			}				
-			Product.bulkCreate(products).then(() => {
-				resolve(true)
-			}).catch((err) =>{
-				reject(err);
-			})
-		}
-	)
+var generateData = (n) => {
+	var p = Promise.resolve();
+	var products = [];
+	for(var i = 0; i < n; i++) {
+		let data = dataGenerator();
+		p = p.then(() => {
+			return Product.create(data).then(() => {
+			});
+		})
+	}		
+	return p;
 }
 
-const promiseProducts = (k, n) => {
-	var promisesAllProducts = [];
-	var p = k / n;
-	for(var i = 0; i < p; i++) {
-		promisesAllProducts.push(promiseProduct(n));
-	}
-	return promisesAllProducts;
-}
-
-const partition = (k, n) => {
-	var allProducts = promiseProducts(k, n);
-	Promise.all(allProducts).then(() => {
-		console.log('done');
-		process.exit();	
-	})
-	.catch((err) => {
-		console.log(err)
-		process.exit();	
-	})
-}
-// 100*100*100
-// 97480
-partition(1000000, 1000)
-// seed(100)
+generateData(100000).then(() => {
+	console.log('done');
+	process.exit();		
+});
