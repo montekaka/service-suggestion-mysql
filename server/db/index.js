@@ -1,6 +1,10 @@
 const Sequelize = require('sequelize');
 const orm = new Sequelize('productsuggestion', 'root','password', {
-  dialect: 'mysql'
+  dialect: 'mysql',
+  pool: {
+  	acquire: 40000,
+  	idle: 20000
+  }
 });
 
 const Product = orm.define('Product', {

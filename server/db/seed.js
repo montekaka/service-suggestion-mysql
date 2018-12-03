@@ -8,54 +8,44 @@ const fake = require('./../../libs/fake.js');
 
 const dataGenerator = fake.generator;
 
-const seedProducts = (n) => {
-	var products = [];
-	for(var i = 0; i < n; i++) {
-		let data = dataGenerator();
-		products.push(data);
-	}	
-	return products;
+const promiseProduct = function(n) {
+	return new Promise (
+		(resolve, reject) => {
+			var products = [];
+			for(var i = 0; i < n; i++) {
+				let data = dataGenerator();
+				products.push(data);
+			}				
+			Product.bulkCreate(products).then(() => {
+				resolve(true)
+			}).catch((err) =>{
+				reject(err);
+			})
+		}
+	)
 }
 
-const calculateSuggestions = (products) => {
-	var suggestions = [];
-	products.forEach((product) => {
-		products.forEach((_product) => {
-			if(product.id !== _product.id) {
-				let score = stringSimilarity.compareTwoStrings(product['name'], _product['name']);
-				suggestions.push({ProductId: product.id, suggestProductId: _product.id, score: score });
-				suggestions.push({ProductId: _product.id, suggestProductId: product.id, score: score });
-			}
-		})
-	});
-	return suggestions;
+const promiseProducts = (k, n) => {
+	var promisesAllProducts = [];
+	var p = k / n;
+	for(var i = 0; i < p; i++) {
+		promisesAllProducts.push(promiseProduct(n));
+	}
+	return promisesAllProducts;
 }
 
-const seed = (n) => {
-	let products = seedProducts(n);
-	Product.bulkCreate(products).then(() => {		
-		// create suggestions per product
-		Product.findAll({})
-		.then((products) => {
-			return calculateSuggestions(products);
-		})
-		.then((suggestions) => {
-			console.log(suggestions.length)
-			return Suggestion.bulkCreate(suggestions).then(() => {
-				console.log('done suggestions')
-			})
-			.catch((err) => {
-				console.log('error suggestions')
-			})
-		})
-		.then(() => {
-			console.log('done');	
-			process.exit();			
-		})			
+const partition = (k, n) => {
+	var allProducts = promiseProducts(k, n);
+	Promise.all(allProducts).then(() => {
+		console.log('done');
+		process.exit();	
 	})
 	.catch((err) => {
-		console.log('err');
+		console.log(err)
+		process.exit();	
 	})
 }
-
-seed(100)
+// 100*100*100
+// 97480
+partition(1000000, 1000)
+// seed(100)
