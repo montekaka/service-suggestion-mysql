@@ -21,7 +21,7 @@ var generateData = (n) => {
 	return p;
 }
 
-generateData(100000).then(() => {
+generateData(100).then(() => {
 	console.log('done');
 	process.exit();		
 });
