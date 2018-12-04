@@ -82,19 +82,15 @@ insertSuggestions = (n) => {
 	})
 }
 
-insertSuggestions(100).then(() => {
-	console.log('done...');
-	process.exit();	
-});
+const seed = (n, k) => {
+	insertProducts(n, k).then((startTime) => {
+		console.log(`done inserted products from ${startTime}`);
+		// insert suggestions
+		insertSuggestions(n).then(() => {
+			console.log('done inserted suggestions');
+			process.exit();	
+		})
+	});
+}
 
-// insertProducts(100, 10).then((startTime) => {
-// 	console.log('done...', startTime);
-// 	process.exit();
-// });
-
-// print start time
-// generateData(10000000, 10000) # 1min
-// generateProducts(10000000, 10000).then(() => {
-// 	console.log(`start at ${startTime}, finished at ${Date.now()}, diff: ${(Date.now() - startTime) / (24 * 3600 * 1000)}`);
-// 	process.exit();		
-// });
+seed(100, 10);
