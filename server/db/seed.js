@@ -85,7 +85,7 @@ insertSuggestions = (n) => {
 const seed = (n, k) => {
 	insertProducts(n, k).then((startTime) => {
 		console.log(`done inserted products from ${startTime}`);
-		// insert suggestions
+		insert suggestions
 		insertSuggestions(n).then(() => {
 			console.log('done inserted suggestions');
 			process.exit();	
@@ -93,4 +93,4 @@ const seed = (n, k) => {
 	});
 }
 
-seed(100, 10);
+// seed(10000, 1000);
