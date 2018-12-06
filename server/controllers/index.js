@@ -15,9 +15,18 @@ module.exports = {
           res.json(product);
         });
       } else {
+        const pageNumber = req.query.page ? Number(req.query.page) : 0;
+        const limit = req.query.limit ? Number(req.query.limit) : 10;
+        // get page number 
         Product.findAll({})
         .then((products) => {
-          res.json(products);
+          const n = products.length;
+          const totalPages = Math.ceil(n / limit);
+          const previousPage = pageNumber > 0 ? pageNumber - 1 : 0;
+          const nextPage = pageNumber < totalPages ? pageNumber + 1 : totalPages;
+          Product.findAll({offset: pageNumber, limit: limit}).then((products) => {
+            res.json({products: products, totalPages: totalPages, currentPage: pageNumber, nextPage: nextPage, previousPage: previousPage});
+          })          
         });
       }
     },
