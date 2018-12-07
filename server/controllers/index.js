@@ -25,7 +25,13 @@ module.exports = {
           const previousPage = pageNumber > 0 ? pageNumber - 1 : 0;
           const nextPage = pageNumber < totalPages ? pageNumber + 1 : totalPages;
           Product.findAll({offset: pageNumber, limit: limit}).then((products) => {
-            res.json({products: products, totalPages: totalPages, currentPage: pageNumber, nextPage: nextPage, previousPage: previousPage});
+            res.set({
+              'totalPages': totalPages,
+              'currentPage': pageNumber,
+              'previousPage': previousPage,
+              'nextPage': nextPage
+            })
+            res.json(products);
           })          
         });
       }
