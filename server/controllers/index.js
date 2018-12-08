@@ -17,23 +17,30 @@ module.exports = {
       } else {
         const pageNumber = req.query.page ? Number(req.query.page) : 0;
         const limit = req.query.limit ? Number(req.query.limit) : 10;
+        Product.findAll({offset: pageNumber, limit: limit}).then((products) => {
+          res.set({
+            'currentPage': pageNumber,
+            'limit': limit
+          })
+          res.json(products);
+        })         
         // get page number 
-        Product.findAll({})
-        .then((products) => {
-          const n = products.length;
-          const totalPages = Math.ceil(n / limit);
-          const previousPage = pageNumber > 0 ? pageNumber - 1 : 0;
-          const nextPage = pageNumber < totalPages ? pageNumber + 1 : totalPages;
-          Product.findAll({offset: pageNumber, limit: limit}).then((products) => {
-            res.set({
-              'totalPages': totalPages,
-              'currentPage': pageNumber,
-              'previousPage': previousPage,
-              'nextPage': nextPage
-            })
-            res.json(products);
-          })          
-        });
+        // Product.findAll({})
+        // .then((products) => {
+        //   const n = products.length;
+        //   const totalPages = Math.ceil(n / limit);
+        //   const previousPage = pageNumber > 0 ? pageNumber - 1 : 0;
+        //   const nextPage = pageNumber < totalPages ? pageNumber + 1 : totalPages;
+        //   Product.findAll({offset: pageNumber, limit: limit}).then((products) => {
+        //     res.set({
+        //       'totalPages': totalPages,
+        //       'currentPage': pageNumber,
+        //       'previousPage': previousPage,
+        //       'nextPage': nextPage
+        //     })
+        //     res.json(products);
+        //   })          
+        // });
       }
     },
     post: (req, res) => {
@@ -126,6 +133,24 @@ module.exports = {
           res.json({'message':'truncated all'})
         });
       })      
+    },
+    getSuggestions: (req, res) => {
+      //3613957
+      const id = req.params.id;
+      const pageNumber = req.query.page ? Number(req.query.page) : 0;
+      const limit = req.query.limit ? Number(req.query.limit) : 10;
+
+      Product.findOne({where: {id: id}})
+      .then((product) => {
+        return product.getSuggestions({offset: pageNumber, limit: limit})
+      })
+      .then((suggestions) => {
+        res.set({
+          'currentPage': pageNumber,
+          'limit': limit
+        })        
+        res.json(suggestions);
+      })
     }
   },
   suggestions: {
