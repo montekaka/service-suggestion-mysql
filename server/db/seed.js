@@ -31,7 +31,7 @@ const insertProducts = (n, k) => {
 			console.log('inserted')
 		})
 	}, {
-		concurrency: 1
+		concurrency: 4
 	})
 	.then(() => {
 		// console.log('done...');
@@ -42,55 +42,55 @@ const insertProducts = (n, k) => {
 	})
 }
 
-insertSuggestions = (n) => {
+insertSuggestions = (totalProducts, numberOfSuggestProduct, numberOfSuggestionsPerProduct) => {
 	//Product.findAll({offset: 0 , limit: 1})
+	// randomly pick 100000 products, and create 20 suggestions for each of them.
+
 	const offsets = [];
-	for(var i = 0; i < n; i++) {
-		offsets.push(i);
-	};
+	while(offsets.length < numberOfSuggestProduct) {
+		let k = Math.floor(Math.random() * Math.floor(totalProducts));
+		if(offsets.includes(k) === false) {
+			offsets.push(k);
+		}
+	}
+
 	return Promise.map(offsets, (idx) => {
+		let k = Math.floor(Math.random() * Math.floor(totalProducts));
 		return Product.findAll({offset: idx , limit: 1}).then((product) => {
 			let name = product[0]['name'];
 			let id = product[0]['id'];
-
-			return Promise.map(offsets, (idy) => {
-				return Product.findAll({offset: idy , limit: 1}).then((suggestProduct) => {
-					let _name = suggestProduct[0]['name'];
-					let _id = suggestProduct[0]['id'];
-					var bulk = [];
+			return Product.findAll({offset: k, limit: numberOfSuggestionsPerProduct})
+			.then((suggestProducts) => {
+				var bulk = [];
+				suggestProducts.forEach((suggestProduct) => {
+					let _name = suggestProduct['name'];
+					let _id = suggestProduct['id'];
 					if(_id !== id) {
-						// add suggestions
 						let score = stringSimilarity.compareTwoStrings(_name, name);
 						bulk.push({ ProductId: id, suggestProductId: _id, score: score });
-						bulk.push({ ProductId: _id, suggestProductId: id, score: score });
-						Suggestion.bulkCreate(bulk).then(() => {
-							console.log('inserted suggestions')
-						});
 					}
+				});
+				Suggestion.bulkCreate(bulk).then(() => {
+					console.log('inserted suggestions')
 				})
-			}, {
-				concurrency: 1
-			}).then(() => {
-				return true;
-			})
-
+			});			
 		})
 	}, {
-		concurrency: 1
+		concurrency: 10
 	}).then(() => {
 		return true;
 	})
 }
 
-const seed = (n, k) => {
-	insertProducts(n, k).then((startTime) => {
+const seed = (totalProducts, k, numberOfSuggestProduct, numberOfSuggestionsPerProduct) => {
+	insertProducts(totalProducts, k).then((startTime) => {
 		console.log(`done inserted products from ${startTime}`);
-		insert suggestions
-		insertSuggestions(n).then(() => {
+		insertSuggestions(totalProducts, numberOfSuggestProduct, numberOfSuggestionsPerProduct)
+    .then(() => {
 			console.log('done inserted suggestions');
 			process.exit();	
 		})
 	});
 }
 
-// seed(10000, 1000);
+seed(10000000, 10000, 10000, 30);
