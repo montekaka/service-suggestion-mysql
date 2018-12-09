@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 // create a write stream (in append mode)
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
 // setup the logger
-app.use(logger('combined', { stream: accessLogStream }));
+app.use(logger(':method|:url|:status|:response-time|ms', { stream: accessLogStream }));
 // 
 app.use(router);
 
