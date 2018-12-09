@@ -44,9 +44,10 @@ const insertProducts = (n, k) => {
 
 insertSuggestions = (totalProducts, numberOfSuggestProduct, numberOfSuggestionsPerProduct) => {
 	//Product.findAll({offset: 0 , limit: 1})
-	// randomly pick 100000 products, and create 20 suggestions for each of them.
+	// randomly pick 10000 products, and create 30 suggestions for each of them.
 
 	const offsets = [];
+  // picking the 10000 products
 	while(offsets.length < numberOfSuggestProduct) {
 		let k = Math.floor(Math.random() * Math.floor(totalProducts));
 		if(offsets.includes(k) === false) {
@@ -93,4 +94,4 @@ const seed = (totalProducts, k, numberOfSuggestProduct, numberOfSuggestionsPerPr
 	});
 }
 
-seed(10000000, 10000, 10000, 30);
+seed(10000000, 10000, 1000, 30);
