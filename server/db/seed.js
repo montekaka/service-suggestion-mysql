@@ -34,10 +34,6 @@ const insertProducts = (n, k) => {
 		concurrency: 4
 	})
 	.then(() => {
-		// console.log('done...');
-		// const endTime = Date.now();
-		// console.log(`finished in ${endTime}, ${startTime}`);
-		// process.exit();
 		return startTime;
 	})
 }
@@ -55,33 +51,55 @@ insertSuggestions = (totalProducts, numberOfSuggestProduct, numberOfSuggestionsP
 		}
 	}
 
-	return Promise.map(offsets, (idx) => {
-		let k = Math.floor(Math.random() * Math.floor(totalProducts));
-		return Product.findAll({offset: idx , limit: 1}).then((product) => {
-			let name = product[0]['name'];
-			let id = product[0]['id'];
-			return Product.findAll({offset: k, limit: numberOfSuggestionsPerProduct})
-			.then((suggestProducts) => {
-				var bulk = [];
-				suggestProducts.forEach((suggestProduct) => {
-					let _name = suggestProduct['name'];
-					let _id = suggestProduct['id'];
-					if(_id !== id) {
-						let score = stringSimilarity.compareTwoStrings(_name, name);
-						bulk.push({ ProductId: id, suggestProductId: _id, score: score });
-					}
-				});
-				Suggestion.bulkCreate(bulk).then(() => {
-					console.log('inserted suggestions')
+	const offsetBulks = [];
+	var offsetBulk = [];
+	for(var i = 0; i < offsets.length; i++ ) {
+		if( i % 100 === 0) {
+			if(offsetBulk.length > 0) {
+				offsetBulks.push(offsetBulk);
+			}
+			offsetBulk = [offsets[i]];
+		} else {
+			offsetBulk.push(offsets[i]);
+		}
+	}
+
+	return Promise.map(offsetBulks, (offsetBulk) => {
+		return Product.findAll({
+			where: {
+				id: {[Op.or]: offsetBulk}
+			}
+		}).then((products) => {
+			let k = Math.floor(Math.random() * Math.floor(totalProducts));
+			return Product.findAll({offset: k, limit: numberOfSuggestionsPerProduct}).then((suggestions) => {				
+				return Promise.map(products, (product) => {
+					var name = product['name'];
+					var id = product['id'];
+					var bulk = [];
+					suggestions.forEach((suggestProduct) => {
+						let _name = suggestProduct['name'];
+						let _id = suggestProduct['id'];
+						if(_id !== id) {
+							let score = stringSimilarity.compareTwoStrings(_name, name);
+							bulk.push({ ProductId: id, suggestProductId: _id, score: score });
+						}
+					});
+					Suggestion.bulkCreate(bulk).then(() => {
+						console.log('inserted suggestions')
+					})
+				}, {
+					concurrency: 10
 				})
-			});			
-		})
+			})
+		});
 	}, {
-		concurrency: 10
-	}).then(() => {
-		return true;
+		concurrency: 4
 	})
 }
+
+//insertSuggestions(10000, 1000, 30);
+
+// console.log(insertSuggestions(10000, 1000, 30));
 
 const seed = (totalProducts, k, numberOfSuggestProduct, numberOfSuggestionsPerProduct) => {
 	insertProducts(totalProducts, k).then((startTime) => {
@@ -94,4 +112,4 @@ const seed = (totalProducts, k, numberOfSuggestProduct, numberOfSuggestionsPerPr
 	});
 }
 
-seed(10000000, 10000, 1000, 30);
+seed(10000000, 10000, 10000, 30);
