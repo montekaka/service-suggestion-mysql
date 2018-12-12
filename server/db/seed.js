@@ -63,6 +63,8 @@ insertSuggestions = (totalProducts, numberOfSuggestProduct, numberOfSuggestionsP
 			offsetBulk.push(offsets[i]);
 		}
 	}
+	
+	offsetBulks.push(offsetBulk)
 
 	return Promise.map(offsetBulks, (offsetBulk) => {
 		return Product.findAll({
