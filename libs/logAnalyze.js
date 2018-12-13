@@ -41,7 +41,7 @@ const summary = (data) => {
 	return {count: n, total: total, average: total / n};
 }
 
-const getSummaryStats = (file_path) => {
+const getSummaryStats = (file_path, category_name) => {
 	return getLogText(file_path).then((contents) => {
 		return contents.split('\n');
 	}).then((rows) => {
@@ -59,7 +59,7 @@ const getSummaryStats = (file_path) => {
 		var summarized = [];
 		keys.forEach((key) => {
 			var stats = summary(data[key]);
-			stats['requestType'] = key;
+			stats[category_name] = key;
 			summarized.push(stats);
 		});
 		return summarized;	
@@ -69,6 +69,6 @@ const getSummaryStats = (file_path) => {
 };
 
 const FILE_PATH = './../server/access.log';
-getSummaryStats(FILE_PATH).then((data) => {
+getSummaryStats(FILE_PATH, 'requestType').then((data) => {
 	console.table(data)
 })
