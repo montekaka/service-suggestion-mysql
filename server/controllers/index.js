@@ -135,7 +135,10 @@ module.exports = {
   },
   suggestions: {
     get: (req, res) => {
-      Suggestion.findAll({})
+      var pageNumber = 1;
+      var limit = 10;
+      
+      Suggestion.findAll({offset: pageNumber * limit, limit: limit})
       .then((suggestions) => {
         res.json(suggestions);
       });      
